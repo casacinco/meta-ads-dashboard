@@ -48,7 +48,7 @@ export interface MetaAdsState {
 }
 
 export function useMetaAdsData(): MetaAdsState {
-  const [timeWindow, setTimeWindow] = useState<TimeWindow>('7d');
+  const [timeWindow, setTimeWindow] = useState<TimeWindow>('today');
   const [kpis, setKpis] = useState<KPIs | null>(null);
   const [timeseries, setTimeseries] = useState<TimeseriesPoint[]>([]);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
