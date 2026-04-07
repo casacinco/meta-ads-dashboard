@@ -46,6 +46,19 @@ export default function CampaignFilter({ campaigns, selected, onChange }: Props)
     onChange([]);
   }
 
+  function selectAll() {
+    const ids = filtered.map((c) => c.campaignId);
+    const allAlreadySelected = ids.every((id) => selected.includes(id));
+    if (allAlreadySelected) {
+      onChange(selected.filter((id) => !ids.includes(id)));
+    } else {
+      const merged = Array.from(new Set([...selected, ...ids]));
+      onChange(merged);
+    }
+  }
+
+  const allFilteredSelected = filtered.length > 0 && filtered.every((c) => selected.includes(c.campaignId));
+
   const label =
     selected.length === 0
       ? 'Todas as campanhas'
@@ -151,6 +164,32 @@ export default function CampaignFilter({ campaigns, selected, onChange }: Props)
 
             {/* Options */}
             <div style={{ maxHeight: '260px', overflowY: 'auto' }}>
+              {filtered.length > 0 && (
+                <label
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '9px 12px',
+                    background: allFilteredSelected ? 'var(--surface-alt)' : 'transparent',
+                    borderBottom: '1px solid var(--border-light)',
+                    cursor: 'pointer',
+                    transition: 'background 0.1s',
+                  }}
+                  onMouseEnter={(e) => { if (!allFilteredSelected) (e.currentTarget as HTMLElement).style.background = 'var(--surface-alt)'; }}
+                  onMouseLeave={(e) => { if (!allFilteredSelected) (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={allFilteredSelected}
+                    onChange={selectAll}
+                    style={{ width: '14px', height: '14px', accentColor: 'var(--accent)', flexShrink: 0, cursor: 'pointer' }}
+                  />
+                  <span style={{ fontFamily: 'var(--mono)', fontSize: '12px', color: 'var(--text-dim)', fontStyle: 'italic' }}>
+                    {search ? 'Selecionar resultado da busca' : 'Selecionar todos'}
+                  </span>
+                </label>
+              )}
               {filtered.length === 0 && (
                 <div style={{ padding: '12px', color: 'var(--text-muted)', fontFamily: 'var(--mono)', fontSize: '12px', textAlign: 'center' }}>
                   Nenhuma campanha encontrada

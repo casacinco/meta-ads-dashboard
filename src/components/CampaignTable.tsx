@@ -12,6 +12,22 @@ export default function CampaignTable({ campaigns }: Props) {
     return roasB - roasA;
   });
 
+  const totalValorUsado = sorted.reduce((s, c) => s + (c.valorUsado ?? 0), 0);
+  const totalResultados = sorted.reduce((s, c) => s + (c.resultados ?? 0), 0);
+  const totalConversoes = sorted.reduce((s, c) => s + (c.conversoes ?? 0), 0);
+  const totalReceita = sorted.reduce((s, c) => s + (c.receita ?? 0), 0);
+  const totalCustoPorCheckout = totalResultados > 0 ? totalValorUsado / totalResultados : 0;
+  const totalRatio = totalResultados > 0 ? (totalConversoes / totalResultados) * 100 : 0;
+  const totalCustoVenda = totalConversoes > 0 ? totalValorUsado / totalConversoes : 0;
+  const totalReceitaPorConversao = totalConversoes > 0 ? totalReceita / totalConversoes : 0;
+  const totalRoas = totalValorUsado > 0 ? totalReceita / totalValorUsado : 0;
+
+  const totalRowStyle: React.CSSProperties = {
+    background: 'var(--surface-alt)',
+    borderTop: '2px solid var(--border-light)',
+    fontWeight: 700,
+  };
+
   return (
     <div style={{
       background: 'var(--surface)',
@@ -103,6 +119,46 @@ export default function CampaignTable({ campaigns }: Props) {
               <tr>
                 <td colSpan={12} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
                   Nenhuma campanha no período
+                </td>
+              </tr>
+            )}
+            {sorted.length > 0 && (
+              <tr style={totalRowStyle}>
+                <td style={{ padding: '12px 16px', color: 'var(--text-muted)', fontSize: '12px', fontFamily: 'var(--sans)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                  Total
+                </td>
+                <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--amber)' }}>
+                  {formatBRL(totalValorUsado)}
+                </td>
+                <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--text)' }}>
+                  {formatNumber(totalResultados)}
+                </td>
+                <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--green)' }}>
+                  {totalCustoPorCheckout > 0 ? formatBRL(totalCustoPorCheckout) : '—'}
+                </td>
+                <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--text)' }}>
+                  {formatNumber(totalConversoes)}
+                </td>
+                <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--text-dim)' }}>
+                  {totalResultados > 0 ? `${totalRatio.toFixed(2)}%` : '—'}
+                </td>
+                <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--amber)' }}>
+                  {totalCustoVenda > 0 ? formatBRL(totalCustoVenda) : '—'}
+                </td>
+                <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--green)' }}>
+                  {totalReceitaPorConversao > 0 ? formatBRL(totalReceitaPorConversao) : '—'}
+                </td>
+                <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--green)' }}>
+                  {totalReceita > 0 ? formatBRL(totalReceita) : '—'}
+                </td>
+                <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--purple)' }}>
+                  {totalRoas > 0 ? totalRoas.toFixed(2) : '—'}
+                </td>
+                <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--text-muted)' }}>
+                  —
+                </td>
+                <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--text-muted)' }}>
+                  —
                 </td>
               </tr>
             )}
