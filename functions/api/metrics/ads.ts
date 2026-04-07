@@ -14,6 +14,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       SELECT
         ad_id as adId,
         MAX(ad_name) as adName,
+        MAX(campaign_id) as campaignId,
         COALESCE(SUM(spend), 0) as valorUsado,
         COALESCE(SUM(reach), 0) as alcance,
         COALESCE(SUM(impressions), 0) as impressions,
@@ -32,6 +33,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     `).bind(startDate, endDate).all<{
       adId: string;
       adName: string;
+      campaignId: string;
       valorUsado: number;
       alcance: number;
       impressions: number;
@@ -48,6 +50,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       return {
         adId: row.adId,
         adName: row.adName,
+        campaignId: row.campaignId,
         valorUsado: row.valorUsado,
         alcance: row.alcance,
         cpm,

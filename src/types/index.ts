@@ -26,6 +26,7 @@ export interface Campaign {
 export interface Ad {
   adId: string;
   adName: string;
+  campaignId: string;
   valorUsado: number;
   alcance: number;
   cpm: number;

@@ -1,13 +1,24 @@
+import { useState } from 'react';
 import { useMetaAdsData } from '../hooks/useMetaAdsData';
 import TimeWindowPicker from '../components/TimeWindowPicker';
 import KPICards from '../components/KPICards';
 import SpendChart from '../components/SpendChart';
 import CampaignTable from '../components/CampaignTable';
 import AdTable from '../components/AdTable';
+import CampaignFilter from '../components/CampaignFilter';
 import { formatDateBR } from '../lib/format';
 
 export default function MetaAds() {
   const { kpis, timeseries, campaigns, ads, loading, error, dateRange, timeWindow, setTimeWindow } = useMetaAdsData();
+  const [selectedCampaign, setSelectedCampaign] = useState<string | null>(null);
+
+  const filteredCampaigns = selectedCampaign
+    ? campaigns.filter((c) => c.campaignId === selectedCampaign)
+    : campaigns;
+
+  const filteredAds = selectedCampaign
+    ? ads.filter((a) => a.campaignId === selectedCampaign)
+    : ads;
 
   return (
     <div style={{ padding: '32px', width: '80%', maxWidth: 'none' }}>
@@ -71,8 +82,13 @@ export default function MetaAds() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <KPICards kpis={kpis} />
           {timeseries.length > 0 && <SpendChart data={timeseries} />}
-          <CampaignTable campaigns={campaigns} />
-          <AdTable ads={ads} />
+          <CampaignFilter
+            campaigns={campaigns}
+            selected={selectedCampaign}
+            onChange={(id) => setSelectedCampaign(id)}
+          />
+          <CampaignTable campaigns={filteredCampaigns} />
+          <AdTable ads={filteredAds} />
         </div>
       )}
     </div>
