@@ -67,7 +67,7 @@ export default function AdTable({ ads }: Props) {
                   {formatNumber(a.conversoes ?? 0)}
                 </td>
                 <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--text-dim)' }}>
-                  {(a.conversoes ?? 0) > 0 ? `${((a.resultados ?? 0) / a.conversoes).toFixed(2)}` : '—'}
+                  {(a.resultados ?? 0) > 0 ? `${((a.conversoes ?? 0) / a.resultados * 100).toFixed(2)}%` : '—'}
                 </td>
                 <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--amber)' }}>
                   {(a.conversoes ?? 0) > 0 && (a.custoPorResultado ?? 0) > 0
