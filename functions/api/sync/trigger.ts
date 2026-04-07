@@ -1,20 +1,18 @@
 import type { Env } from '../../lib/types';
 import { getDefaultDateRange } from '../../lib/date-utils';
-import { fetchMetaInsights, fetchAccountInfo, fetchMonthlySpend, extractResults, extractCostPerResult } from '../../lib/meta-api';
+import { fetchMetaInsights, fetchAccountInfo, fetchMonthlySpend, extractResults, extractCostPerResult, extractConversions, extractRevenue } from '../../lib/meta-api';
 
 const TAX_RATE = 0.1215;
 const TAX_START = '2026-01-01';
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   try {
-    // Auth
     const authHeader = request.headers.get('Authorization') || '';
     const token = authHeader.replace('Bearer ', '').trim();
     if (token !== env.SYNC_SECRET) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Date range
     const url = new URL(request.url);
     const defaults = getDefaultDateRange();
     const startDate = url.searchParams.get('startDate') || defaults.startDate;
@@ -22,17 +20,16 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
     const db = env.DB;
 
-    // 1. Fetch insights
     const insights = await fetchMetaInsights(env, startDate, endDate);
 
-    // 2. Upsert in batches of 100
     const stmts = insights.map((ins) => {
       return db.prepare(`
         INSERT INTO meta_ad_metrics (
           ad_id, date_ref, ad_name, adset_id, adset_name, campaign_id, campaign_name,
           spend, impressions, cpm, clicks, ctr, reach, frequency,
-          inline_link_clicks, inline_link_click_ctr, results, cost_per_result, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+          inline_link_clicks, inline_link_click_ctr, results, cost_per_result,
+          conversions, revenue, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
         ON CONFLICT (ad_id, date_ref) DO UPDATE SET
           ad_name = excluded.ad_name,
           adset_id = excluded.adset_id,
@@ -50,6 +47,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
           inline_link_click_ctr = excluded.inline_link_click_ctr,
           results = excluded.results,
           cost_per_result = excluded.cost_per_result,
+          conversions = excluded.conversions,
+          revenue = excluded.revenue,
           updated_at = datetime('now')
       `).bind(
         ins.ad_id,
@@ -70,6 +69,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
         parseFloat(ins.inline_link_click_ctr || '0'),
         extractResults(ins.actions),
         extractCostPerResult(ins.cost_per_action_type),
+        extractConversions(ins.actions),
+        extractRevenue(ins.action_values),
       );
     });
 
@@ -77,7 +78,6 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       await db.batch(stmts.slice(i, i + 100));
     }
 
-    // 3. Account info
     const account = await fetchAccountInfo(env);
     await db.prepare(`
       INSERT INTO meta_account (account_id, name, currency, timezone_name, updated_at)
@@ -89,7 +89,6 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
         updated_at = datetime('now')
     `).bind(account.account_id, account.name, account.currency, account.timezone_name).run();
 
-    // 4. Monthly spend + tax
     const monthly = await fetchMonthlySpend(env);
     const finStmts = monthly.map((m) => {
       const spend = parseFloat(m.spend || '0');

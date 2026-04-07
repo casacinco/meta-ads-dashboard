@@ -17,6 +17,7 @@ export interface MetaInsight {
   inline_link_clicks?: string;
   inline_link_click_ctr?: string;
   actions?: Array<{ action_type: string; value: string }>;
+  action_values?: Array<{ action_type: string; value: string }>;
   cost_per_action_type?: Array<{ action_type: string; value: string }>;
   date_start: string;
 }
@@ -48,6 +49,16 @@ export function extractCostPerResult(costPerAction: Array<{ action_type: string;
   }
   return 0;
 }
+export function extractConversions(actions: Array<{ action_type: string; value: string }> | undefined): number {
+  if (!actions) return 0;
+  const found = actions.find((a) => a.action_type === 'omni_purchase');
+  return found ? parseInt(found.value, 10) : 0;
+}
+export function extractRevenue(actionValues: Array<{ action_type: string; value: string }> | undefined): number {
+  if (!actionValues) return 0;
+  const found = actionValues.find((a) => a.action_type === 'omni_purchase');
+  return found ? parseFloat(found.value) : 0;
+}
 export async function fetchMetaInsights(
   env: Env,
   startDate: string,
@@ -59,7 +70,7 @@ export async function fetchMetaInsights(
     fields: [
       'ad_id', 'ad_name', 'adset_id', 'adset_name', 'campaign_id', 'campaign_name',
       'spend', 'impressions', 'cpm', 'clicks', 'ctr', 'reach', 'frequency',
-      'actions', 'cost_per_action_type', 'inline_link_clicks', 'inline_link_click_ctr',
+      'actions', 'action_values', 'cost_per_action_type', 'inline_link_clicks', 'inline_link_click_ctr',
     ].join(','),
     time_range: JSON.stringify({ since: startDate, until: endDate }),
     limit: '500',

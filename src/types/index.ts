@@ -32,6 +32,8 @@ export interface Ad {
   impressions: number;
   resultados: number;
   custoPorResultado: number;
+  conversoes: number;
+  receita: number;
 }
 
 export interface AccountInfo {
