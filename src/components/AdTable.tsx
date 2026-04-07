@@ -20,7 +20,7 @@ export default function AdTable({ ads }: Props) {
         <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--sans)' }}>
           <thead>
             <tr>
-              {['Anúncio', 'Valor Usado', 'Resultados', 'Custo/Resultado', 'Alcance', 'CPM', 'CTR', 'Impressões'].map((h) => (
+              {['Anúncio', 'Valor Usado', 'Checkouts', 'Custo/Checkout', 'Alcance', 'CPM', 'CTR', 'Impressões'].map((h) => (
                 <th key={h} style={{
                   padding: '10px 16px',
                   textAlign: h === 'Anúncio' ? 'left' : 'right',
