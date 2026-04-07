@@ -1,7 +1,5 @@
 import type { Env } from './types';
-
 const BASE = 'https://graph.facebook.com/v21.0';
-
 export interface MetaInsight {
   ad_id: string;
   ad_name: string;
@@ -22,39 +20,34 @@ export interface MetaInsight {
   cost_per_action_type?: Array<{ action_type: string; value: string }>;
   date_start: string;
 }
-
 export interface MetaAccountInfo {
   name: string;
   currency: string;
   timezone_name: string;
   account_id: string;
 }
-
 export interface MetaMonthlySpend {
   spend: string;
   date_start: string;
 }
-
-function extractResults(actions: Array<{ action_type: string; value: string }> | undefined): number {
+export function extractResults(actions: Array<{ action_type: string; value: string }> | undefined): number {
   if (!actions) return 0;
-  const priority = ['lead', 'onsite_conversion.lead_grouped', 'omni_purchase'];
+  const priority = ['omni_initiated_checkout', 'lead', 'onsite_conversion.lead_grouped', 'omni_purchase'];
   for (const type of priority) {
     const found = actions.find((a) => a.action_type === type);
     if (found) return parseInt(found.value, 10);
   }
   return 0;
 }
-
-function extractCostPerResult(costPerAction: Array<{ action_type: string; value: string }> | undefined): number {
+export function extractCostPerResult(costPerAction: Array<{ action_type: string; value: string }> | undefined): number {
   if (!costPerAction) return 0;
-  const priority = ['lead', 'onsite_conversion.lead_grouped', 'omni_purchase'];
+  const priority = ['omni_initiated_checkout', 'lead', 'onsite_conversion.lead_grouped', 'omni_purchase'];
   for (const type of priority) {
     const found = costPerAction.find((a) => a.action_type === type);
     if (found) return parseFloat(found.value);
   }
   return 0;
 }
-
 export async function fetchMetaInsights(
   env: Env,
   startDate: string,
@@ -72,10 +65,8 @@ export async function fetchMetaInsights(
     limit: '500',
     access_token: env.META_ACCESS_TOKEN,
   });
-
   const results: MetaInsight[] = [];
   let url: string | null = `${BASE}/${env.META_AD_ACCOUNT_ID}/insights?${params}`;
-
   while (url) {
     const res = await fetch(url);
     const json = await res.json() as { data: MetaInsight[]; paging?: { next?: string }; error?: { message: string } };
@@ -83,10 +74,8 @@ export async function fetchMetaInsights(
     results.push(...(json.data || []));
     url = json.paging?.next || null;
   }
-
   return results;
 }
-
 export async function fetchAccountInfo(env: Env): Promise<MetaAccountInfo> {
   const params = new URLSearchParams({
     fields: 'name,currency,timezone_name,account_id',
@@ -97,7 +86,6 @@ export async function fetchAccountInfo(env: Env): Promise<MetaAccountInfo> {
   if ((json as any).error) throw new Error(`Meta API error: ${(json as any).error.message}`);
   return json;
 }
-
 export async function fetchMonthlySpend(env: Env): Promise<MetaMonthlySpend[]> {
   const today = new Date().toISOString().split('T')[0];
   const params = new URLSearchParams({
@@ -112,5 +100,3 @@ export async function fetchMonthlySpend(env: Env): Promise<MetaMonthlySpend[]> {
   if (json.error) throw new Error(`Meta API error: ${json.error.message}`);
   return json.data || [];
 }
-
-export { extractResults, extractCostPerResult };
