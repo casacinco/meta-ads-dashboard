@@ -51,29 +51,29 @@ export default function AdTable({ ads }: Props) {
               >
                 <td style={{ padding: '12px 16px', color: 'var(--text)', fontSize: '13px', maxWidth: '240px' }}>
                   <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {a.adName}
+                    {a.adName ?? '—'}
                   </div>
                 </td>
                 <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--amber)' }}>
-                  {formatBRL(a.valorUsado)}
+                  {formatBRL(a.valorUsado ?? 0)}
                 </td>
                 <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--text)' }}>
-                  {formatNumber(a.resultados)}
+                  {formatNumber(a.resultados ?? 0)}
                 </td>
                 <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--green)' }}>
-                  {a.custoPorResultado > 0 ? formatBRL(a.custoPorResultado) : '—'}
+                  {(a.custoPorResultado ?? 0) > 0 ? formatBRL(a.custoPorResultado) : '—'}
                 </td>
                 <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--text)' }}>
-                  {formatNumber(a.alcance)}
+                  {formatNumber(a.alcance ?? 0)}
                 </td>
                 <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--text)' }}>
-                  {formatBRL(a.cpm)}
+                  {formatBRL(a.cpm ?? 0)}
                 </td>
                 <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--green)' }}>
-                  {formatPercent(a.ctr)}
+                  {formatPercent(a.ctr ?? 0)}
                 </td>
                 <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--text)' }}>
-                  {formatNumber(a.impressions)}
+                  {formatNumber(a.impressions ?? 0)}
                 </td>
               </tr>
             ))}
