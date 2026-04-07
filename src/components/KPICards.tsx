@@ -1,5 +1,5 @@
 import type { KPIs } from '../types';
-import { formatBRL, formatNumber, formatPercent } from '../lib/format';
+import { formatBRL } from '../lib/format';
 
 interface Props {
   kpis: KPIs;
@@ -21,28 +21,22 @@ export default function KPICards({ kpis }: Props) {
       colorDim: 'var(--amber-dim)',
     },
     {
-      label: 'ALCANCE',
-      value: formatNumber(kpis.alcance),
-      color: 'var(--accent)',
-      colorDim: 'var(--accent-dim)',
-    },
-    {
-      label: 'CTR',
-      value: formatPercent(kpis.ctr),
+      label: 'FATURAMENTO',
+      value: formatBRL(kpis.faturamento),
       color: 'var(--green)',
       colorDim: 'var(--green-dim)',
     },
     {
-      label: 'CPM',
-      value: formatBRL(kpis.cpm),
-      color: 'var(--text-dim)',
-      colorDim: 'rgba(122,122,140,0.12)',
-    },
-    {
-      label: 'FREQUÊNCIA',
-      value: kpis.frequencia.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      label: 'ROAS',
+      value: kpis.roas.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
       color: 'var(--purple)',
       colorDim: 'var(--purple-dim)',
+    },
+    {
+      label: 'CPA',
+      value: formatBRL(kpis.cpa),
+      color: 'var(--red)',
+      colorDim: 'var(--red-dim)',
     },
   ];
 

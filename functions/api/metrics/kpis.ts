@@ -13,36 +13,28 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     const result = await env.DB.prepare(`
       SELECT
         COALESCE(SUM(spend), 0) as total_spend,
-        COALESCE(SUM(impressions), 0) as total_impressions,
-        COALESCE(SUM(inline_link_clicks), 0) as total_link_clicks,
-        COALESCE(SUM(reach), 0) as total_reach
+        COALESCE(SUM(conversions), 0) as total_conversions,
+        COALESCE(SUM(revenue), 0) as total_revenue
       FROM meta_ad_metrics
       WHERE date_ref >= ? AND date_ref <= ?
     `).bind(startDate, endDate).first<{
       total_spend: number;
-      total_impressions: number;
-      total_link_clicks: number;
-      total_reach: number;
+      total_conversions: number;
+      total_revenue: number;
     }>();
 
     if (!result) {
-      return Response.json({ valorUsado: 0, alcance: 0, ctr: 0, cpm: 0, frequencia: 0 });
+      return Response.json({ valorUsado: 0, faturamento: 0, roas: 0, cpa: 0 });
     }
 
-    const impressions = result.total_impressions;
-    const linkClicks = result.total_link_clicks;
-    const reach = result.total_reach;
-
-    const cpm = impressions > 0 ? (result.total_spend / impressions) * 1000 : 0;
-    const ctr = impressions > 0 ? (linkClicks / impressions) * 100 : 0;
-    const frequencia = reach > 0 ? impressions / reach : 0;
+    const roas = result.total_spend > 0 ? result.total_revenue / result.total_spend : 0;
+    const cpa = result.total_conversions > 0 ? result.total_spend / result.total_conversions : 0;
 
     return Response.json({
       valorUsado: result.total_spend,
-      alcance: reach,
-      ctr,
-      cpm,
-      frequencia,
+      faturamento: result.total_revenue,
+      roas,
+      cpa,
     });
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);

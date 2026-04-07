@@ -1,9 +1,8 @@
 export interface KPIs {
   valorUsado: number;
-  alcance: number;
-  ctr: number;
-  cpm: number;
-  frequencia: number;
+  faturamento: number;
+  roas: number;
+  cpa: number;
 }
 
 export interface TimeseriesPoint {
