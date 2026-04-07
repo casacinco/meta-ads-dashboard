@@ -20,7 +20,7 @@ export default function AdTable({ ads }: Props) {
         <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--sans)' }}>
           <thead>
             <tr>
-              {['Anúncio', 'Valor Usado', 'Checkouts', 'Custo/Checkout', 'Conversões', 'Receita', 'Alcance', 'CPM', 'CTR', 'Impressões'].map((h) => (
+              {['Anúncio', 'Valor Usado', 'Checkouts', 'Custo/Checkout', 'Conversões', 'Ratio', 'Receita', 'Alcance', 'CPM', 'CTR', 'Impressões'].map((h) => (
                 <th key={h} style={{
                   padding: '10px 16px',
                   textAlign: h === 'Anúncio' ? 'left' : 'right',
@@ -66,6 +66,9 @@ export default function AdTable({ ads }: Props) {
                 <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--text)' }}>
                   {formatNumber(a.conversoes ?? 0)}
                 </td>
+                <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--text-dim)' }}>
+                  {(a.conversoes ?? 0) > 0 ? `${((a.resultados ?? 0) / a.conversoes).toFixed(2)}` : '—'}
+                </td>
                 <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--green)' }}>
                   {(a.receita ?? 0) > 0 ? formatBRL(a.receita) : '—'}
                 </td>
@@ -85,7 +88,7 @@ export default function AdTable({ ads }: Props) {
             ))}
             {ads.length === 0 && (
               <tr>
-                <td colSpan={10} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
+                <td colSpan={11} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
                   Nenhum anúncio no período
                 </td>
               </tr>
