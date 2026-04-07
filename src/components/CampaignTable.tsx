@@ -6,6 +6,12 @@ interface Props {
 }
 
 export default function CampaignTable({ campaigns }: Props) {
+  const sorted = [...campaigns].sort((a, b) => {
+    const roasA = (a.receita ?? 0) > 0 && (a.valorUsado ?? 0) > 0 ? a.receita / a.valorUsado : 0;
+    const roasB = (b.receita ?? 0) > 0 && (b.valorUsado ?? 0) > 0 ? b.receita / b.valorUsado : 0;
+    return roasB - roasA;
+  });
+
   return (
     <div style={{
       background: 'var(--surface)',
@@ -22,7 +28,7 @@ export default function CampaignTable({ campaigns }: Props) {
         <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--sans)' }}>
           <thead>
             <tr>
-              {['Campanha', 'Valor Usado', 'Alcance', 'CPM', 'CTR', 'Resultados', 'Custo/Result.'].map((h) => (
+              {['Campanha', 'Valor Usado', 'Checkouts', 'Custo/Checkout', 'Conversões', 'Ratio', 'Custo Venda', 'Receita', 'Receita Total', 'ROAS', 'CPM', 'CTR'].map((h) => (
                 <th key={h} style={{
                   padding: '10px 16px',
                   textAlign: h === 'Campanha' ? 'left' : 'right',
@@ -39,7 +45,7 @@ export default function CampaignTable({ campaigns }: Props) {
             </tr>
           </thead>
           <tbody>
-            {campaigns.map((c, i) => (
+            {sorted.map((c, i) => (
               <tr
                 key={c.campaignId}
                 className="fade-up"
@@ -57,28 +63,45 @@ export default function CampaignTable({ campaigns }: Props) {
                   </div>
                 </td>
                 <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--amber)' }}>
-                  {formatBRL(c.valorUsado)}
+                  {formatBRL(c.valorUsado ?? 0)}
                 </td>
                 <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--text)' }}>
-                  {formatNumber(c.alcance)}
-                </td>
-                <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--text)' }}>
-                  {formatBRL(c.cpm)}
+                  {formatNumber(c.resultados ?? 0)}
                 </td>
                 <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--green)' }}>
-                  {formatPercent(c.ctr)}
+                  {(c.custoPorResultado ?? 0) > 0 ? formatBRL(c.custoPorResultado) : '—'}
                 </td>
                 <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--text)' }}>
-                  {formatNumber(c.resultados)}
+                  {formatNumber(c.conversoes ?? 0)}
                 </td>
-                <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--red)' }}>
-                  {c.custoPorResultado > 0 ? formatBRL(c.custoPorResultado) : '—'}
+                <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--text-dim)' }}>
+                  {(c.resultados ?? 0) > 0 ? `${((c.conversoes ?? 0) / c.resultados * 100).toFixed(2)}%` : '—'}
+                </td>
+                <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--amber)' }}>
+                  {(c.conversoes ?? 0) > 0 && (c.custoPorResultado ?? 0) > 0
+                    ? formatBRL(((c.resultados ?? 0) / c.conversoes) * c.custoPorResultado)
+                    : '—'}
+                </td>
+                <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--green)' }}>
+                  {(c.receita ?? 0) > 0 && (c.conversoes ?? 0) > 0 ? formatBRL(c.receita / c.conversoes) : '—'}
+                </td>
+                <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--green)' }}>
+                  {(c.receita ?? 0) > 0 ? formatBRL(c.receita) : '—'}
+                </td>
+                <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--purple)' }}>
+                  {(c.receita ?? 0) > 0 && (c.valorUsado ?? 0) > 0 ? (c.receita / c.valorUsado).toFixed(2) : '—'}
+                </td>
+                <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--text)' }}>
+                  {formatBRL(c.cpm ?? 0)}
+                </td>
+                <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--green)' }}>
+                  {formatPercent(c.ctr ?? 0)}
                 </td>
               </tr>
             ))}
             {campaigns.length === 0 && (
               <tr>
-                <td colSpan={7} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
+                <td colSpan={12} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
                   Nenhuma campanha no período
                 </td>
               </tr>

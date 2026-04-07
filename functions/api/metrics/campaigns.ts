@@ -18,7 +18,9 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
         COALESCE(SUM(reach), 0) as alcance,
         COALESCE(SUM(impressions), 0) as impressions,
         COALESCE(SUM(inline_link_clicks), 0) as linkClicks,
-        COALESCE(SUM(results), 0) as resultados
+        COALESCE(SUM(results), 0) as resultados,
+        COALESCE(SUM(conversions), 0) as conversoes,
+        COALESCE(SUM(revenue), 0) as receita
       FROM meta_ad_metrics
       WHERE date_ref >= ? AND date_ref <= ?
       GROUP BY campaign_id
@@ -31,6 +33,8 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       impressions: number;
       linkClicks: number;
       resultados: number;
+      conversoes: number;
+      receita: number;
     }>();
 
     const data = (rows.results || []).map((row) => {
@@ -46,6 +50,8 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
         ctr,
         resultados: row.resultados,
         custoPorResultado,
+        conversoes: row.conversoes,
+        receita: row.receita,
       };
     });
 

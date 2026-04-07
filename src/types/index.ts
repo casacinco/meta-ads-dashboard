@@ -20,6 +20,8 @@ export interface Campaign {
   ctr: number;
   resultados: number;
   custoPorResultado: number;
+  conversoes: number;
+  receita: number;
 }
 
 export interface Ad {
