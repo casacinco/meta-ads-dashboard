@@ -1,10 +1,8 @@
 import type { Ad } from '../types';
 import { formatBRL, formatNumber, formatPercent } from '../lib/format';
-
 interface Props {
   ads: Ad[];
 }
-
 export default function AdTable({ ads }: Props) {
   return (
     <div style={{
@@ -22,7 +20,7 @@ export default function AdTable({ ads }: Props) {
         <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--sans)' }}>
           <thead>
             <tr>
-              {['Anúncio', 'Valor Usado', 'Alcance', 'CPM', 'CTR', 'Impressões'].map((h) => (
+              {['Anúncio', 'Valor Usado', 'Resultados', 'Custo/Resultado', 'Alcance', 'CPM', 'CTR', 'Impressões'].map((h) => (
                 <th key={h} style={{
                   padding: '10px 16px',
                   textAlign: h === 'Anúncio' ? 'left' : 'right',
@@ -60,6 +58,12 @@ export default function AdTable({ ads }: Props) {
                   {formatBRL(a.valorUsado)}
                 </td>
                 <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--text)' }}>
+                  {formatNumber(a.resultados)}
+                </td>
+                <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--green)' }}>
+                  {a.custoPorResultado > 0 ? formatBRL(a.custoPorResultado) : '—'}
+                </td>
+                <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--text)' }}>
                   {formatNumber(a.alcance)}
                 </td>
                 <td style={{ padding: '12px 16px', textAlign: 'right', fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--text)' }}>
@@ -75,7 +79,7 @@ export default function AdTable({ ads }: Props) {
             ))}
             {ads.length === 0 && (
               <tr>
-                <td colSpan={6} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
+                <td colSpan={8} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
                   Nenhum anúncio no período
                 </td>
               </tr>

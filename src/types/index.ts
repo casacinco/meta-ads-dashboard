@@ -30,6 +30,8 @@ export interface Ad {
   cpm: number;
   ctr: number;
   impressions: number;
+  resultados: number;
+  custoPorResultado: number;
 }
 
 export interface AccountInfo {
