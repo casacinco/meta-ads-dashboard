@@ -10,7 +10,7 @@ export default function MetaAds() {
   const { kpis, timeseries, campaigns, ads, loading, error, dateRange, timeWindow, setTimeWindow } = useMetaAdsData();
 
   return (
-    <div style={{ padding: '32px', maxWidth: '1280px' }}>
+    <div style={{ padding: '32px', width: '80%', maxWidth: 'none' }}>
       {/* Header */}
       <div style={{ marginBottom: '24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>

@@ -4,6 +4,12 @@ interface Props {
   ads: Ad[];
 }
 export default function AdTable({ ads }: Props) {
+  const sorted = [...ads].sort((a, b) => {
+    const roasA = (a.receita ?? 0) > 0 && (a.valorUsado ?? 0) > 0 ? a.receita / a.valorUsado : 0;
+    const roasB = (b.receita ?? 0) > 0 && (b.valorUsado ?? 0) > 0 ? b.receita / b.valorUsado : 0;
+    return roasB - roasA;
+  });
+
   return (
     <div style={{
       background: 'var(--surface)',
@@ -37,7 +43,7 @@ export default function AdTable({ ads }: Props) {
             </tr>
           </thead>
           <tbody>
-            {ads.map((a, i) => (
+            {sorted.map((a, i) => (
               <tr
                 key={a.adId}
                 className="fade-up"
