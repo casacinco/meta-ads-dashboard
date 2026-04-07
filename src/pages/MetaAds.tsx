@@ -10,14 +10,14 @@ import { formatDateBR } from '../lib/format';
 
 export default function MetaAds() {
   const { kpis, timeseries, campaigns, ads, loading, error, dateRange, timeWindow, setTimeWindow } = useMetaAdsData();
-  const [selectedCampaign, setSelectedCampaign] = useState<string | null>(null);
+  const [selectedCampaigns, setSelectedCampaigns] = useState<string[]>([]);
 
-  const filteredCampaigns = selectedCampaign
-    ? campaigns.filter((c) => c.campaignId === selectedCampaign)
+  const filteredCampaigns = selectedCampaigns.length > 0
+    ? campaigns.filter((c) => selectedCampaigns.includes(c.campaignId))
     : campaigns;
 
-  const filteredAds = selectedCampaign
-    ? ads.filter((a) => a.campaignId === selectedCampaign)
+  const filteredAds = selectedCampaigns.length > 0
+    ? ads.filter((a) => selectedCampaigns.includes(a.campaignId))
     : ads;
 
   return (
@@ -84,8 +84,8 @@ export default function MetaAds() {
           {timeseries.length > 0 && <SpendChart data={timeseries} />}
           <CampaignFilter
             campaigns={campaigns}
-            selected={selectedCampaign}
-            onChange={(id) => setSelectedCampaign(id)}
+            selected={selectedCampaigns}
+            onChange={setSelectedCampaigns}
           />
           <CampaignTable campaigns={filteredCampaigns} />
           <AdTable ads={filteredAds} />

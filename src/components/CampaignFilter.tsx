@@ -3,8 +3,8 @@ import type { Campaign } from '../types';
 
 interface Props {
   campaigns: Campaign[];
-  selected: string | null;
-  onChange: (campaignId: string | null) => void;
+  selected: string[];
+  onChange: (campaignIds: string[]) => void;
 }
 
 export default function CampaignFilter({ campaigns, selected, onChange }: Props) {
@@ -12,8 +12,6 @@ export default function CampaignFilter({ campaigns, selected, onChange }: Props)
   const [search, setSearch] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  const selectedCampaign = campaigns.find((c) => c.campaignId === selected) ?? null;
 
   const filtered = campaigns.filter((c) =>
     c.campaignName.toLowerCase().includes(search.toLowerCase())
@@ -36,11 +34,24 @@ export default function CampaignFilter({ campaigns, selected, onChange }: Props)
     setTimeout(() => inputRef.current?.focus(), 0);
   }
 
-  function handleSelect(campaignId: string | null) {
-    onChange(campaignId);
-    setOpen(false);
-    setSearch('');
+  function toggleCampaign(campaignId: string) {
+    if (selected.includes(campaignId)) {
+      onChange(selected.filter((id) => id !== campaignId));
+    } else {
+      onChange([...selected, campaignId]);
+    }
   }
+
+  function clearAll() {
+    onChange([]);
+  }
+
+  const label =
+    selected.length === 0
+      ? 'Todas as campanhas'
+      : selected.length === 1
+      ? campaigns.find((c) => c.campaignId === selected[0])?.campaignName ?? '1 campanha'
+      : `${selected.length} campanhas selecionadas`;
 
   if (campaigns.length === 0) return null;
 
@@ -65,9 +76,9 @@ export default function CampaignFilter({ campaigns, selected, onChange }: Props)
             width: '100%',
             padding: '7px 12px',
             borderRadius: '8px',
-            border: `1px solid ${open ? 'var(--border-light)' : 'var(--border)'}`,
+            border: `1px solid ${open || selected.length > 0 ? 'var(--border-light)' : 'var(--border)'}`,
             background: 'var(--surface)',
-            color: selectedCampaign ? 'var(--text)' : 'var(--text-muted)',
+            color: selected.length > 0 ? 'var(--text)' : 'var(--text-muted)',
             fontFamily: 'var(--mono)',
             fontSize: '12px',
             cursor: 'pointer',
@@ -80,9 +91,26 @@ export default function CampaignFilter({ campaigns, selected, onChange }: Props)
           }}
         >
           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {selectedCampaign ? selectedCampaign.campaignName : 'Todas as campanhas'}
+            {label}
           </span>
-          <span style={{ color: 'var(--text-muted)', flexShrink: 0, fontSize: '10px' }}>▾</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+            {selected.length > 0 && (
+              <span
+                onClick={(e) => { e.stopPropagation(); clearAll(); }}
+                style={{
+                  color: 'var(--text-muted)',
+                  fontSize: '14px',
+                  lineHeight: 1,
+                  cursor: 'pointer',
+                  padding: '0 2px',
+                }}
+                title="Limpar filtro"
+              >
+                ×
+              </span>
+            )}
+            <span style={{ color: 'var(--text-muted)', fontSize: '10px' }}>▾</span>
+          </div>
         </button>
 
         {/* Dropdown */}
@@ -122,61 +150,86 @@ export default function CampaignFilter({ campaigns, selected, onChange }: Props)
             </div>
 
             {/* Options */}
-            <div style={{ maxHeight: '240px', overflowY: 'auto' }}>
-              <button
-                onClick={() => handleSelect(null)}
-                style={{
-                  width: '100%',
-                  padding: '9px 12px',
-                  textAlign: 'left',
-                  background: selected === null ? 'var(--surface-alt)' : 'transparent',
-                  color: selected === null ? 'var(--text)' : 'var(--text-dim)',
-                  fontFamily: 'var(--mono)',
-                  fontSize: '12px',
-                  border: 'none',
-                  cursor: 'pointer',
-                  borderBottom: '1px solid var(--border)',
-                  transition: 'background 0.1s',
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--surface-alt)')}
-                onMouseLeave={(e) => (e.currentTarget.style.background = selected === null ? 'var(--surface-alt)' : 'transparent')}
-              >
-                Todas as campanhas
-              </button>
-
+            <div style={{ maxHeight: '260px', overflowY: 'auto' }}>
               {filtered.length === 0 && (
                 <div style={{ padding: '12px', color: 'var(--text-muted)', fontFamily: 'var(--mono)', fontSize: '12px', textAlign: 'center' }}>
                   Nenhuma campanha encontrada
                 </div>
               )}
 
-              {filtered.map((c) => (
-                <button
-                  key={c.campaignId}
-                  onClick={() => handleSelect(c.campaignId)}
-                  style={{
-                    width: '100%',
-                    padding: '9px 12px',
-                    textAlign: 'left',
-                    background: selected === c.campaignId ? 'var(--surface-alt)' : 'transparent',
-                    color: selected === c.campaignId ? 'var(--text)' : 'var(--text-dim)',
-                    fontFamily: 'var(--mono)',
-                    fontSize: '12px',
-                    border: 'none',
-                    borderBottom: '1px solid var(--border)',
-                    cursor: 'pointer',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    transition: 'background 0.1s',
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--surface-alt)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = selected === c.campaignId ? 'var(--surface-alt)' : 'transparent')}
-                >
-                  {c.campaignName}
-                </button>
-              ))}
+              {filtered.map((c) => {
+                const isChecked = selected.includes(c.campaignId);
+                return (
+                  <label
+                    key={c.campaignId}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      padding: '9px 12px',
+                      background: isChecked ? 'var(--surface-alt)' : 'transparent',
+                      borderBottom: '1px solid var(--border)',
+                      cursor: 'pointer',
+                      transition: 'background 0.1s',
+                    }}
+                    onMouseEnter={(e) => { if (!isChecked) (e.currentTarget as HTMLElement).style.background = 'var(--surface-alt)'; }}
+                    onMouseLeave={(e) => { if (!isChecked) (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={() => toggleCampaign(c.campaignId)}
+                      style={{
+                        width: '14px',
+                        height: '14px',
+                        accentColor: 'var(--accent)',
+                        flexShrink: 0,
+                        cursor: 'pointer',
+                      }}
+                    />
+                    <span style={{
+                      fontFamily: 'var(--mono)',
+                      fontSize: '12px',
+                      color: isChecked ? 'var(--text)' : 'var(--text-dim)',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}>
+                      {c.campaignName}
+                    </span>
+                  </label>
+                );
+              })}
             </div>
+
+            {/* Footer */}
+            {selected.length > 0 && (
+              <div style={{
+                padding: '8px 12px',
+                borderTop: '1px solid var(--border)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}>
+                <span style={{ fontFamily: 'var(--mono)', fontSize: '11px', color: 'var(--text-muted)' }}>
+                  {selected.length} selecionada{selected.length > 1 ? 's' : ''}
+                </span>
+                <button
+                  onClick={clearAll}
+                  style={{
+                    fontFamily: 'var(--mono)',
+                    fontSize: '11px',
+                    color: 'var(--accent)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: 0,
+                  }}
+                >
+                  Limpar tudo
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
